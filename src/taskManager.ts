@@ -1,13 +1,13 @@
 import Text from "./core/text";
 import Image from "./core/image";
-import FabricManager from "./fabricManager";
+import FabricConnector from "./fabricConnector";
 import Collection from "./core/collection";
 
 export default class TaskManager {
-  private fabricManager: FabricManager;
+  private fabricManager: FabricConnector;
   private collection;
 
-  constructor(fabricManager: FabricManager) {
+  constructor(fabricManager: FabricConnector) {
     this.fabricManager = fabricManager;
     this.collection = new Collection();
   }
