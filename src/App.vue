@@ -4,12 +4,18 @@
       <canvas id="fabric-canvas"></canvas>
       <el-row class="mt-3">
         <el-tooltip content="To Front">
-          <el-button @click="handleClick" plain size="medium" icon="el-icon-upload2"></el-button>
+          <el-button @click="handleClick('toFront')" plain size="medium" icon="el-icon-upload2"></el-button>
         </el-tooltip>
         <el-tooltip content="To Back">
-          <el-button @click="handleClick" plain size="medium" icon="el-icon-download"></el-button>
+          <el-button @click="handleClick('toBack')" plain size="medium" icon="el-icon-download"></el-button>
         </el-tooltip>
-        <el-button @click="handleClick" type="danger" plain size="medium" icon="el-icon-delete"></el-button>
+        <el-button
+          @click="handleClick('delete')"
+          type="danger"
+          plain
+          size="medium"
+          icon="el-icon-delete"
+        ></el-button>
       </el-row>
     </article>
     <el-tabs v-model="activeTab">
@@ -79,7 +85,7 @@ export default Vue.extend({
       this.$emit("addText", this.selectedText);
     },
 
-    handleClick(event) {
+    handleClick(event: string = "") {
       this.$emit("buttonClick", event);
     }
   }

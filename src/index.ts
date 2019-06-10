@@ -1,6 +1,8 @@
 import Vue from "vue";
 import App from "./App.vue";
-import DesignerCanvas from "./designerCanvas";
+import TaskManager from "./taskManager";
+import FabricConnector from "./fabricConnector";
+import Text from "./core/text";
 import { fabric } from "fabric";
 
 /**
@@ -10,8 +12,8 @@ import { fabric } from "fabric";
 //#region Main Application Parts
 //1. UI interface
 const viewModel = new Vue(App).$mount("#app");
-//2. Canvas
-const designerCanvas = new DesignerCanvas();
+//2. Task manager
+const manager = new TaskManager(new FabricConnector());
 //#endregion
 
 //#region work with UI
@@ -25,34 +27,39 @@ viewModel.setData({
 });
 
 //listen data from UI
-viewModel.$on("buttonClick", function(event) {
+viewModel.$on("buttonClick", function(event: string) {
   console.log("Clicked buttons:", event);
+  switch (event) {
+    case "delete":
+      manager.removeSelected();
+      break;
+
+    case "toFront":
+      manager.moveSelectedToFront();
+      break;
+
+    case "toBack":
+      manager.moveSelectedToBack();
+      break;
+    default:
+      console.log("Clicked buttons:", event);
+  }
 });
 
 viewModel.$on("addText", function(value) {
-  designerCanvas.canvas.add(
-    new fabric.Text(value.text, {
-      fill: value.color
-    })
-  );
+  manager.addText(new Text(value.text, value.color, value.font));
 });
 //#endregion
 
 //#region work with canvas
-designerCanvas.addPhoto(
-  "https://live.staticflickr.com/5031/7430761556_c3e7b6c321_m.jpg",
-  { left: 10, top: 10 }
-);
-designerCanvas.addPhoto(
-  "https://live.staticflickr.com/7039/6835581528_e747fd91fe_q.jpg",
-  { left: 210, top: 90, filter: "grayscale" }
-);
+// manager.addImage(
+//   "https://live.staticflickr.com/5031/7430761556_c3e7b6c321_m.jpg",
+//   { left: 10, top: 10 }
+// );
+// manager.addImage(
+//   "https://live.staticflickr.com/7039/6835581528_e747fd91fe_q.jpg",
+//   { left: 210, top: 90, filter: "grayscale" }
+// );
 
-designerCanvas.canvas.add(
-  new fabric.Text("I'm green text", {
-    fill: "#009900",
-    left: 10,
-    top: 300
-  })
-);
+manager.addText(new Text("I'm green text", "#009900", ""));
 //#endregion
