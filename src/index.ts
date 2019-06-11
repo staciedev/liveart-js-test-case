@@ -4,6 +4,7 @@ import TaskManager from "./taskManager";
 import FabricConnector from "./fabricConnector";
 import Text from "./core/text";
 import { fabric } from "fabric";
+import DrawingObject from "./core/drawingObject";
 
 /**
  * Root class with the stub data
@@ -21,7 +22,7 @@ const manager = new TaskManager(new FabricConnector());
 viewModel.setData({
   selectedText: {
     text: "I'm red texts",
-    font: "first_font",
+    fontFamily: "first_font",
     color: "#FF0000"
   }
 });
@@ -47,9 +48,46 @@ viewModel.$on("buttonClick", function(event: string) {
 });
 
 viewModel.$on("addText", function(value) {
-  manager.addText(new Text(value.text, value.color, value.font));
+  manager.addText(new Text(value.text, value.color, value.fontFamily));
+});
+viewModel.$on("editText", function(value) {
+  // console.log(value);
+  manager.editText(value.id, value);
 });
 //#endregion
+
+manager.selected$.subscribe((item: DrawingObject) => {
+  console.log("selected!");
+  if (item instanceof Text) {
+    console.log("text selected!");
+    viewModel.setData({
+      selectedText: {
+        type: "text",
+        id: item.id,
+        text: item.text,
+        fontFamily: item.fontFamily,
+        color: item.color
+      }
+    });
+  }
+
+  // else if(item instanceof Image) {
+  //   viewModel.setData({
+  //     selectedItem: {
+  //       id: item.id,
+  //       url: item.url,
+  //       filter: item.filter
+  //     }
+  //   });
+  // }
+});
+
+manager.deselected$.subscribe(() => {
+  console.log("deselect!");
+  viewModel.setData({
+    selectedText: {}
+  });
+});
 
 //#region work with canvas
 // manager.addImage(

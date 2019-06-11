@@ -1,26 +1,40 @@
 import { fabric } from "fabric";
 import Text from "./core/text";
 import Image from "./core/image";
+import DrawingObject from "./core/drawingObject";
+import GraphicConnector from "./iGraphicConnector";
+import { Observable } from "rxjs";
 
-export default class FabricConnector {
-  public canvas;
-  width = 400;
-  height = 400;
+export default class FabricConnector implements GraphicConnector {
+  private canvas;
+  private width = 400;
+  private height = 400;
 
-  hash: any[] = [];
+  // a hack to store connection between Fabric object and app object
+  private hash: any[] = [];
+
+  public selected$: Observable<DrawingObject>;
+  public deselected$: Observable<any>;
 
   constructor() {
     this.canvas = new fabric.Canvas("fabric-canvas");
     this.canvas.setHeight(this.width);
     this.canvas.setWidth(this.height);
 
-    this.canvas.on("object:selected", function(event) {
-      // console.log("event", event.target);
-      // for (const key in event) {
-      //   if (event.hasOwnProperty(key)) {
-      //     console.log(key);
-      //   }
-      // }
+    this.selected$ = new Observable(subscriber => {
+      let self = this;
+      this.canvas.on("selection:updated", function() {
+        subscriber.next(self.getSelected());
+      });
+      this.canvas.on("selection:created", function() {
+        subscriber.next(self.getSelected());
+      });
+    });
+
+    this.deselected$ = new Observable(subscriber => {
+      this.canvas.on("selection:cleared", function() {
+        subscriber.next();
+      });
     });
   }
 
@@ -34,26 +48,35 @@ export default class FabricConnector {
     this.hash.push({ app: text, lib: fabricText });
   }
 
-  public addImage(url, options) {
-    fabric.Image.fromURL(
-      url,
-      img => {
-        img.set(options);
-        this.canvas.add(img);
+  updateText(text: Text, values: Object) {
+    let result = this.hash.find(element => {
+      return element.app === text;
+    });
+    if (!result) return;
+    let fabricText = result.lib;
 
-        if (options.filter === "grayscale") {
-          img.filters.push(new fabric.Image.filters.Grayscale());
-          img.applyFilters();
-        }
-      },
-      {
-        crossOrigin: "Anonymous"
-      }
-    );
+    fabricText.set({ fontFamily: values.fontFamily, fill: values.color });
+    this.canvas.renderAll();
   }
 
-  getSelected() {
-    // console.log("active", this.canvas.getActiveObject());
+  public addImage(image: Image) {
+    // fabric.Image.fromURL(
+    //   url,
+    //   img => {
+    //     img.set(options);
+    //     this.canvas.add(img);
+    //     if (options.filter === "grayscale") {
+    //       img.filters.push(new fabric.Image.filters.Grayscale());
+    //       img.applyFilters();
+    //     }
+    //   },
+    //   {
+    //     crossOrigin: "Anonymous"
+    //   }
+    // );
+  }
+
+  getSelected(): DrawingObject {
     let result = this.hash.find((element, index, array) => {
       return element.lib === this.canvas.getActiveObject();
     });

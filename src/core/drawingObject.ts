@@ -1,4 +1,4 @@
-export default class DrawingObject {
+export default abstract class DrawingObject {
   public id: string;
   public x: number;
   public y: number;
@@ -21,4 +21,6 @@ export default class DrawingObject {
     this.x = 0;
     this.y = 0;
   }
+
+  abstract update(values: Object): void;
 }

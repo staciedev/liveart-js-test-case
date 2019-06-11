@@ -34,4 +34,8 @@ export default class Collection {
     this.items.splice(index, 1);
     this.items.push(item);
   }
+
+  getById(id: string): DrawingObject | undefined {
+    return this.items.find(element => element.id == id);
+  }
 }

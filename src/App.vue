@@ -20,18 +20,29 @@
     </article>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="Text" name="first">
-        <label class="label mt-3">
+        <label v-if="selectedText.id" class="label mt-3">
           ID:
-          <span>123</span>
+          <span>{{ selectedText.id }}</span>
         </label>
         <el-input placeholder="Your Text Here" v-model="selectedText.text" clearable class="mt-3"></el-input>
         <el-row class="mt-3" style="display: flex;">
-          <el-select v-model="selectedText.font" placeholder="Select Font" class="mr-3">
-            <el-option label="Font 1" value="first_font"></el-option>
-            <el-option label="Font 2" value="second_font"></el-option>
+          <el-select v-model="selectedText.fontFamily" placeholder="Select Font" class="mr-3">
+            <el-option label="Arial" value="Arial"></el-option>
+            <el-option label="Times New Roman" value="Times New Roman"></el-option>
           </el-select>
           <el-color-picker v-model="selectedText.color" class="mr-3"></el-color-picker>
-          <el-button size="medium" @click="handleAddText" type="primary">Add Text</el-button>
+          <el-button
+            v-if="!selectedText.id"
+            size="medium"
+            @click="handleAddText"
+            type="primary"
+          >Add Text</el-button>
+          <el-button
+            v-if="selectedText.id"
+            size="medium"
+            @click="handleEditText"
+            type="primary"
+          >Edit Text</el-button>
         </el-row>
       </el-tab-pane>
       <el-tab-pane label="Image" name="second">
@@ -69,7 +80,7 @@ export default Vue.extend({
       unusedData: "stub",
       selectedText: {
         text: "Default text",
-        font: "first_font",
+        fontFamily: "first_font",
         color: "black"
       }
     };
@@ -78,11 +89,15 @@ export default Vue.extend({
     setData(payload) {
       if (payload.selectedText) {
         this.selectedText = payload.selectedText;
+        this.activeTab = "first";
       }
     },
 
     handleAddText() {
       this.$emit("addText", this.selectedText);
+    },
+    handleEditText() {
+      this.$emit("editText", this.selectedText);
     },
 
     handleClick(event: string = "") {
